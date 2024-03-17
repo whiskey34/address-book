@@ -31,41 +31,43 @@ class ContactController extends Controller
         return response()->json(['message' => 'Contact created successfully'], 201);
     }
 
-    public function update(Request $request, $id)
-    {
-         $validatedData = $request->validate([
-            'name' => 'required|string',
-            'phone' => 'required|string',
-            'email' => 'required|email',
-            'address' => 'nullable|string',
-        ]);
+    // public function update(Request $request, $id)
+    // {
+    //      $validatedData = $request->validate([
+    //         'name' => 'required|string',
+    //         'phone' => 'required|string',
+    //         'email' => 'required|email',
+    //         'address' => 'nullable|string',
+    //     ]);
 
-        // Find the contact by ID
-        $contact = Contact::findOrFail($id);
+    //     // Find the contact by ID
+    //     $contact = Contact::findOrFail($id);
 
-        // Update the contact's information
-        $contact->update($validatedData);
+    //     // Update the contact's information
+    //     $contact->update($validatedData);
 
-        return response()->json(['message' => 'Contact updated successfully'], 200);
+    //     return response()->json(['message' => 'Contact updated successfully'], 200);
     
+    // }
+
+    public function update($id, Request $request)
+    {
+        $contact_data = json_decode($request->contact);
+
+        $contact = Contact::find($id);
+        $contact->name = $contact_data->name;
+        $contact->phone = $contact_data->phone;
+        $contact->email = $contact_data->email;
+        $contact->address = $contact_data->address;
+        $contact->save();
+
+        return response()->json(['message' => 'Contact has been updated'], 200);
     }
 
     public function destroy($id)
     {
-        // try {
-        //     // Find the contact by ID
-        //     $contact = Contact::findOrFail($id);
-            
-        //     // Delete the contact
-        //     $contact->delete();
-    
-        //     return response()->json(['message' => 'Contact deleted successfully'], 200);
-        // } catch (\Exception $e) {
-        //     // Handle any errors
-        //     return response()->json(['error' => 'Failed to delete contact'], 500);
-        // }
-        $contact = Contact::find($id);
+        
         $contact->delete();
-        return response()->json('Contact has been deleted!');
+        return response()->json(['message' => 'Contact deleted successfully'], 200);
     }
 }

@@ -13,12 +13,14 @@ import TableContact from  '@/components/TableContact.vue';
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        <!-- <a class="nav-link active" aria-current="page" href="/">Home</a> -->
+                        <RouterLink class="nav-link active" aria-current="page" :to="{name: 'home'}">Home</RouterLink>
+
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
-                        <!-- <RouterLink class="nav-link" to="/about">About</RouterLink> -->
-                    </li>
+                        <RouterLink class="nav-link" :to="{ name: 'about' }">About</RouterLink>
+                    </li> -->
                     
                     
                     
