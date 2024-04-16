@@ -1,0 +1,11 @@
+address-book apps : 
+1. fields:
+- id
+- name
+- phone
+- email
+- address
+- city
+
+2. CRUD system
+3. Filter & search
