@@ -7,5 +7,15 @@ address-book apps :
 - address
 - city
 
-2. CRUD system
-3. Filter & search
+2. CRUD system (Done)
+3. Filter & search (search Done)
+4. Lazy Load
+5. alert
+
+optional :
+1. API Security
+2. datatable stress test
+
+other update :
+1. filter & advance search
+2. update table w/ package/library to datatables.net / else 

@@ -6,28 +6,26 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <RouterLink class="btn btn-primary" to="/contact/register">Add New</RouterLink>
+            
+            <!-- search form -->
+            <form class="d-flex ms-auto">
+                <input class="form-control me-2" id="searchBar" type="search" placeholder="Search" v-model="searchInput" aria-label="Search">
+            </form>
 
             <div class="btn-group">
-                <button type="button" class="btn btn-secondary">Filter</button>
+                <button type="button" class="btn btn-secondary">Sort</button>
                 <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Separated link</a></li>
+                    <li><a class="dropdown-item" href="#">Asc</a></li>
+                    <li><a class="dropdown-item" href="#">Desc</a></li>
                 </ul>
             </div>
-            
-            <form class="d-flex me-2">
-                <input class="form-control me-2" id="searchBar" type="search" placeholder="Search" v-model="searchInput" aria-label="Search">
-            </form>
         </div>
 
         <table class="table table-hover" id="contactTable">
-            <thead>
+            <thead class="table-success">
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
@@ -39,7 +37,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr  v-for="(contact, index) in contacts" :key="contact.id">
+                <tr  v-for="(contact, index) in filteredContacts" :key="contact.id" :class="{ 'fade-in': contactVisible[index] }">
                     <th scope="row">{{ index + 1 }}</th>
                     <td>{{ contact.name }}</td>
                     <td>{{ contact.phone }}</td>
@@ -54,6 +52,19 @@
                 
             </tbody>
         </table>
+        <div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item" v-for="page in pagination.last_page" :key="page">
+                        <button class="page-link" :class="{ 'is-active': page === pagination.current_page }" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+
+        </div>
     </div>
 
     <EditContact :selectedContact="selectedContact"  @save-data="doEdit" />
@@ -67,7 +78,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import EditContact from '@/components/EditContact.vue'
 import DeleteContact from '@/components/DeleteContact.vue'
 import { onMounted } from 'vue';
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import axios from 'axios';
 import { Form, Field, useResetForm } from 'vee-validate';
 
@@ -76,13 +87,18 @@ let editModal;
 let delModal;
 
 const searchInput = ref('');
-// const rows = ref([]);
 const contacts = ref([]);
-// const router = useRouter();
-// const successMessage = ref('');
+const pagination = ref({
+    current_page: 1,
+    last_page: 1,
+    per_page: 5,
+    // Add other necessary fields
+});
 
 const selectedContact = ref({});
 const deleteContact = ref({});
+
+
 
 onMounted(() => {
     editModal = new bootstrap.Modal(document.getElementById('editModal'));
@@ -93,12 +109,16 @@ onMounted(() => {
 
 })
 
+
+
 const fetchContacts = async () => {
     try {
-        const response = await axios.get('http://localhost:8000/api/contacts');
+        const response = await axios.get('http://localhost:8000/api/contacts?page=' + pagination.value.current_page);
         if (response.data.success) {
             contacts.value = response.data.data.data.reverse();
-            
+            pagination.value.current_page = response.data.data.current_page;
+            pagination.value.last_page = response.data.data.last_page;
+            // Update other necessary fields
         } else {
             console.error('Error fetching users:', response.data.message);
         }
@@ -162,16 +182,55 @@ const doDelete = () => {
         });
 }
 
+const changePage = (page) => {
+    pagination.value.current_page = page;
+    fetchContacts();
+};
 
 // for searchInput filter
-const allContact = computed(() => {
-  return rows.value.filter(row => {
-    return Object.values(row).some(value => {
-      return value.toString().toLowerCase().includes(searchInput.value.toLowerCase());
-    });
-  });
+const filteredContacts = computed(() => {
+  const searchQuery = searchInput.value.toLowerCase();
+  if (!searchQuery) {
+    return contacts.value;
+  }
+  return contacts.value.filter(
+    contact =>
+      contact.name.toLowerCase().includes(searchQuery) ||
+      contact.email.toLowerCase().includes(searchQuery) ||
+      contact.address.toLowerCase().includes(searchQuery) ||
+      contact.city.toLowerCase().includes(searchQuery)
+  );
 });
+
+
+
 </script>
 
-<style scoped></style>
+<style scoped>
+.is-active {
+    background-color: #33897E;
+    color: white;
+}
+
+.not-active {
+    color: #33897E;
+    background-color: white;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+</style>
 
