@@ -9,7 +9,7 @@ address-book apps :
 
 2. CRUD system (Done)
 3. Filter & search (search Done)
-4. Lazy Load
+4. Lazy Load (Done)
 5. alert
 
 optional :

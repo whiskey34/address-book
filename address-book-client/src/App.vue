@@ -1,7 +1,10 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+
 // import HelloWorld from './components/HelloWorld.vue'
 // import TableContact from './components/TableContact.vue'
+
+
 
 </script>
 
@@ -40,6 +43,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 
   <RouterView />
+
 </template>
 
 <style scoped>

@@ -1,236 +1,206 @@
-
-
 <template>
     <div class="container mt-3">
-        <!-- <h1>table contact</h1> -->
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <RouterLink class="btn btn-primary" to="/contact/register">Add New</RouterLink>
-            
-            <!-- search form -->
-            <form class="d-flex ms-auto">
-                <input class="form-control me-2" id="searchBar" type="search" placeholder="Search" v-model="searchInput" aria-label="Search">
-            </form>
-
-            <div class="btn-group">
-                <button type="button" class="btn btn-secondary">Sort</button>
-                <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="visually-hidden">Toggle Dropdown</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Asc</a></li>
-                    <li><a class="dropdown-item" href="#">Desc</a></li>
-                </ul>
-            </div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <RouterLink class="btn btn-primary" to="/contact/register">Add New</RouterLink>
+  
+        <!-- Search form -->
+        <form class="d-flex ms-auto">
+          <input class="form-control me-2" id="searchBar" type="search" placeholder="Search" v-model="searchInput" aria-label="Search">
+        </form>
+  
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary">Sort</button>
+          <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Asc</a></li>
+            <li><a class="dropdown-item" href="#">Desc</a></li>
+          </ul>
         </div>
-
-        <table class="table table-hover" id="contactTable">
-            <thead class="table-success">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Phone</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Address</th>
-                    <th scope="col">City</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
+      </div>
+  
+      <table class="table table-hover" id="contactTable">
+        <thead class="table-success">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Email</th>
+            <th scope="col">Address</th>
+            <th scope="col">City</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <Suspense>
+          <template #default>
+            <LazyTableContent :contacts="filteredContacts" :editPopup="editPopup" :deletePopup="deletePopup" />
+          </template>
+          <template #fallback>
             <tbody>
-                <tr  v-for="(contact, index) in filteredContacts" :key="contact.id" :class="{ 'fade-in': contactVisible[index] }">
-                    <th scope="row">{{ index + 1 }}</th>
-                    <td>{{ contact.name }}</td>
-                    <td>{{ contact.phone }}</td>
-                    <td>{{ contact.email }}</td>
-                    <td>{{ contact.address }}</td>
-                    <td>{{ contact.city }}</td>
-                    <td>
-                        <a class="btn btn-warning" @click="editPopup(contact)">Edit</a> |
-                        <a class="btn btn-danger" @click="deletePopup(contact)">Delete</a>
-                    </td>
-                </tr>
-                
+              <!-- <tr>
+                <td colspan="7" class="load-text" >Loading...</td>
+              </tr> -->
+              <LoadAnimate />
             </tbody>
-        </table>
-        <div>
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item" v-for="page in pagination.last_page" :key="page">
-                        <button class="page-link" :class="{ 'is-active': page === pagination.current_page }" @click="changePage(page)">
-                            {{ page }}
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-
-
-        </div>
+          </template>
+        </Suspense>
+      </table>
+      <div>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item" v-for="page in pagination.last_page" :key="page">
+              <button class="page-link" :class="{ 'is-active': page === pagination.current_page }" @click="changePage(page)">
+                {{ page }}
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </div>
 
-    <EditContact :selectedContact="selectedContact"  @save-data="doEdit" />
-    <DeleteContact :deleteContact="deleteContact" @delete-data="doDelete"/>
+    <button class="btn btn-primary" @click="showToast">Show Toast</button>
+    <ToastNotif v-if="showToast" message="This is a toast message!" />
+  
+    <EditContact :selectedContact="selectedContact" @save-data="doEdit" />
+    <DeleteContact :deleteContact="deleteContact" @delete-data="doDelete" />
 
+    
 </template>
-
-
+  
 <script setup>
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import EditContact from '@/components/EditContact.vue'
 import DeleteContact from '@/components/DeleteContact.vue'
-import { onMounted } from 'vue';
-import { ref, computed, reactive } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import { Form, Field, useResetForm } from 'vee-validate';
+import { defineAsyncComponent } from 'vue';
+import LoadAnimate from '@/components/animations/LoadAnimate.vue'
+// import { useToast } from 'vue3-toastify'
+import ToastNotif from '@/components/notification/ToastNotif.vue';
 
+const showToast = () => {
+    showToast.value = true;
+    ToastNotif.showToastMessage('This is a toast message!');
+};
 
-let editModal;
-let delModal;
-
+const editModal = ref(null);
+const delModal = ref(null);
 const searchInput = ref('');
 const contacts = ref([]);
 const pagination = ref({
-    current_page: 1,
-    last_page: 1,
-    per_page: 5,
-    // Add other necessary fields
+current_page: 1,
+last_page: 1,
+per_page: 5,
 });
+const LazyTableContent = defineAsyncComponent(() => import('@/components/TableContent.vue').then(module => {
+return new Promise(resolve => {
+    setTimeout(() => {
+    resolve(module);
+    }, 3000); // 3 seconds delay
+});
+}));
 
 const selectedContact = ref({});
 const deleteContact = ref({});
 
 
-
 onMounted(() => {
-    editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    delModal = new bootstrap.Modal(document.getElementById('delModal'));
-    fetchContacts();
-    // successMessage.value = router.currentRoute.value.query.successMessage || '';
-
-
-})
-
-
+editModal.value = new bootstrap.Modal(document.getElementById('editModal'));
+delModal.value = new bootstrap.Modal(document.getElementById('delModal'));
+fetchContacts();
+});
 
 const fetchContacts = async () => {
-    try {
-        const response = await axios.get('http://localhost:8000/api/contacts?page=' + pagination.value.current_page);
-        if (response.data.success) {
-            contacts.value = response.data.data.data.reverse();
-            pagination.value.current_page = response.data.data.current_page;
-            pagination.value.last_page = response.data.data.last_page;
-            // Update other necessary fields
-        } else {
-            console.error('Error fetching users:', response.data.message);
-        }
-    } catch (error) {
-        console.error('Error fetching users:', error);
+try {
+    const response = await axios.get('http://localhost:8000/api/contacts?page=' + pagination.value.current_page);
+    if (response.data.success) {
+    contacts.value = response.data.data.data.reverse();
+    pagination.value.current_page = response.data.data.current_page;
+    pagination.value.last_page = response.data.data.last_page;
+    } else {
+    console.error('Error fetching contacts:', response.data.message);
     }
+} catch (error) {
+    console.error('Error fetching contacts:', error);
+}
 };
 
 const editPopup = (contact) => {
-    editModal.show();
-    selectedContact.value = contact;
-    console.log (contact);
-    
-}
-
-const deletePopup = (contact) => {
-    console.log (contact);
-    deleteContact.value = contact;
-    delModal.show();
-}
-
-const doEdit = () => {
-    console.log('click has confirm');
-
-    axios.put(`http://localhost:8000/api/contacts/${selectedContact.value.id}`, {
-        name: selectedContact.value.name,
-        phone: selectedContact.value.phone,
-        email: selectedContact.value.email,
-        address: selectedContact.value.address,
-        city: selectedContact.value.city
-    })
-    .then(response => {
-        console.log(response);
-        // handle success
-        editModal.hide();
-    })
-    .catch(error => {
-        console.log(error);
-        // handle error
-    });
-
-    // editModal.hide();
-}
-
-const doDelete = () => {
-    console.log('click has confirm');
-    if (!deleteContact.value) return; // Ensure a contact is selected
-
-    axios.delete(`http://localhost:8000/api/contacts/${deleteContact.value.id}`)
-        .then(() => {
-            // Delete successful, handle any UI updates or notifications
-            console.log('Contact deleted successfully');
-        })
-        .catch(error => {
-            // Handle delete error
-            console.error('Error deleting contact:', error);
-        })
-        .finally(() => {
-            // Close the delete modal
-            delModal.hide();
-        });
-}
-
-const changePage = (page) => {
-    pagination.value.current_page = page;
-    fetchContacts();
+selectedContact.value = contact;
+editModal.value.show();
 };
 
-// for searchInput filter
-const filteredContacts = computed(() => {
-  const searchQuery = searchInput.value.toLowerCase();
-  if (!searchQuery) {
-    return contacts.value;
-  }
-  return contacts.value.filter(
-    contact =>
-      contact.name.toLowerCase().includes(searchQuery) ||
-      contact.email.toLowerCase().includes(searchQuery) ||
-      contact.address.toLowerCase().includes(searchQuery) ||
-      contact.city.toLowerCase().includes(searchQuery)
-  );
+const deletePopup = (contact) => {
+deleteContact.value = contact;
+delModal.value.show();
+};
+
+const doEdit = () => {
+axios.put(`http://localhost:8000/api/contacts/${selectedContact.value.id}`, {
+    name: selectedContact.value.name,
+    phone: selectedContact.value.phone,
+    email: selectedContact.value.email,
+    address: selectedContact.value.address,
+    city: selectedContact.value.city
+})
+.then(response => {
+    console.log(response);
+    editModal.value.hide();
+})
+.catch(error => {
+    console.error('Error editing contact:', error);
 });
+};
 
+const doDelete = () => {
+if (!deleteContact.value) return; // Ensure a contact is selected
+axios.delete(`http://localhost:8000/api/contacts/${deleteContact.value.id}`)
+    .then(() => {
+    // Handle delete success
+    console.log('Contact deleted successfully');
+    })
+    .catch(error => {
+    console.error('Error deleting contact:', error);
+    })
+    .finally(() => {
+    delModal.value.hide();
+    });
+};
 
+const changePage = (page) => {
+pagination.value.current_page = page;
+fetchContacts();
+};
 
+const filteredContacts = computed(() => {
+const searchQuery = searchInput.value.toLowerCase();
+if (!searchQuery) {
+    return contacts.value;
+}
+return contacts.value.filter(
+    contact =>
+    contact.name.toLowerCase().includes(searchQuery) ||
+    contact.email.toLowerCase().includes(searchQuery) ||
+    contact.address.toLowerCase().includes(searchQuery) ||
+    contact.city.toLowerCase().includes(searchQuery)
+);
+});
 </script>
 
 <style scoped>
 .is-active {
-    background-color: #33897E;
-    color: white;
+background-color: #33897E;
+color: white;
 }
 
 .not-active {
-    color: #33897E;
-    background-color: white;
+color: #33897E;
+background-color: white;
 }
 
-.fade-in {
-  animation: fadeIn 0.5s ease forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* .load-text {
+text-align: center;
+} */
 </style>
-
+  
