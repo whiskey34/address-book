@@ -20,3 +20,5 @@ optional :
 other update :
 1. filter & advance search
 2. update table w/ package/library to datatables.net / else 
+3. Total Contact with card put at Home Page
+4. import and export contact button from csv / to csv 
