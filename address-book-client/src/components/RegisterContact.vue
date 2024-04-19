@@ -1,9 +1,11 @@
 <script setup>
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Form, Field } from 'vee-validate';
 import * as Yup from 'yup'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css';
 
 const fullName = ref('');
 const phoneNum = ref('');
@@ -12,7 +14,27 @@ const Address = ref('');
 const City = ref('');
 
 const router = useRouter();
+const errorList = ref([]);
 
+const successNotify = () => {
+  toast("data successfully added !", {
+    autoClose: 1000,
+    theme: "auto",
+    type: "success",
+    position: "bottom-right",
+    dangerouslyHTMLString: true
+  }); // ToastOptions
+};
+
+const errorNotify = () => {
+  toast("Failed to add data!", {
+    autoClose: 2000,
+    theme: "auto",
+    type: "error",
+    position: "bottom-right",
+    dangerouslyHTMLString: true
+  }); // ToastOptions
+};
 
 const schema = Yup.object().shape({
     fullName: Yup.string()
@@ -28,36 +50,50 @@ const schema = Yup.object().shape({
     
 });
 
+const isFormValid = computed(() => {
+    return (
+        fullName.value.trim() !== '' &&
+        phoneNum.value.trim() !== '' &&
+        email.value.trim() !== '' &&
+        Address.value.trim() !== '' &&
+        City.value.trim() !== ''
+    );
+});
 
 const registerForm = async () => {
-
     try {
-        
-        const response = await axios.post('http://localhost:8000/api/contacts', {
+        const formData = {
             name: fullName.value,
             phone: phoneNum.value,
             email: email.value,
             address: Address.value,
             city: City.value,
-        // Add other fields here
+            // Add other fields here
+        };
+        // console.log('Form Data:', formData);
+        const response = await axios.post('http://localhost:8000/api/contacts', formData);
 
-        });
-        console.log('Contact added successfully:', response.data);
+        // console.log('Contact added successfully:', response.data);
+        successNotify();
         router.push('/contact');
-        
-        
+        // if (response.status === 200) {
+        //     successNotify();
+        //     router.push('/contact');
+        // }
     } catch (error) {
         console.error('Error adding contact:', error);
         // Handle error response
-
+        errorNotify();
         if (error.response && error.response.data && error.response.data.errors) {
             errorList.value = error.response.data.errors;
         } else {
             // Handle other types of errors
             alert('An error occurred while submitting the form. Please try again later.');
+            // router.push('/contact');
         }
     }
 };
+
 </script>
 
 <template>
@@ -72,7 +108,8 @@ const registerForm = async () => {
                 <div class="card-body">
                     
 
-                    <Form @submit.prevent="registerForm" :validation-schema="schema" v-slot="{ errors }">
+                    <Form :validation-schema="schema" v-slot="{ errors }">
+
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Full Name</label>
                             <Field type="text" name="fullName" v-model="fullName" class="form-control" id="fullName" :class="{ 'is-invalid': errors.fullName }"/>
@@ -101,8 +138,11 @@ const registerForm = async () => {
                             <Field type="text" name="city" v-model="City" class="form-control" id="City" :class="{ 'is-invalid': errors.city }"/>
                             <div class="invalid-feedback">{{errors.city}}</div>
                         </div>
-                        <div class="col-auto text-end">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                        <div v-if="isFormValid" class="col-auto text-end">
+                            <button type="button" @click="registerForm" class="btn btn-primary">Submit</button>
+                        </div>
+                        <div v-else class="col-auto text-end">
+                            <button type="button" class="btn btn-primary" disabled>Submit</button>
                         </div>
                     </Form>
                 </div>

@@ -27,7 +27,7 @@ class ContactController extends Controller
         $validator = Validator::make($request->all(), [
             // 'image'     => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'name'     => 'required',
-            'phone'     => 'required|numeric|digits:13',
+            'phone'     => 'required|numeric|digits:10',
             'email'   => 'required|email',
             'address'   => 'required',
             'city'   => 'required',

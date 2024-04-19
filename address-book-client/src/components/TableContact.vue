@@ -59,8 +59,8 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" @click="showToast">Show Toast</button>
-    <ToastNotif v-if="showToast" message="This is a toast message!" />
+    <!-- <button class="btn btn-primary" @click="notify">Show Toast</button> -->
+    <!-- <ToastNotif v-if="showToast" message="This is a toast message!" /> -->
   
     <EditContact :selectedContact="selectedContact" @save-data="doEdit" />
     <DeleteContact :deleteContact="deleteContact" @delete-data="doDelete" />
@@ -76,13 +76,9 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { defineAsyncComponent } from 'vue';
 import LoadAnimate from '@/components/animations/LoadAnimate.vue'
-// import { useToast } from 'vue3-toastify'
-import ToastNotif from '@/components/notification/ToastNotif.vue';
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css';
 
-const showToast = () => {
-    showToast.value = true;
-    ToastNotif.showToastMessage('This is a toast message!');
-};
 
 const editModal = ref(null);
 const delModal = ref(null);
@@ -104,11 +100,52 @@ return new Promise(resolve => {
 const selectedContact = ref({});
 const deleteContact = ref({});
 
+// for Edit Toast Notify
+const successEditNotify = () => {
+  toast("data successfully Updated. ", {
+    autoClose: 1000,
+    theme: "colored",
+    type: "success",
+    position: "bottom-right",
+    dangerouslyHTMLString: true
+  }); // ToastOptions
+};
+
+const failEditNotify = () => {
+  toast("data failed to Update. ", {
+    autoClose: 1000,
+    theme: "colored",
+    type: "error",
+    position: "bottom-right",
+    dangerouslyHTMLString: true
+  }); // ToastOptions
+};
+
+// for Delete Toast Notify
+const successDeleteNotify = () => {
+  toast("data successfully Deleted. ", {
+    autoClose: 1000,
+    theme: "colored",
+    type: "success",
+    position: "bottom-right",
+    dangerouslyHTMLString: true
+  }); // ToastOptions
+};
+
+const failDeleteNotify = () => {
+  toast("data failed to Delete. ", {
+    autoClose: 1000,
+    theme: "colored",
+    type: "error",
+    position: "bottom-right",
+    dangerouslyHTMLString: true
+  }); // ToastOptions
+};
 
 onMounted(() => {
-editModal.value = new bootstrap.Modal(document.getElementById('editModal'));
-delModal.value = new bootstrap.Modal(document.getElementById('delModal'));
-fetchContacts();
+  editModal.value = new bootstrap.Modal(document.getElementById('editModal'));
+  delModal.value = new bootstrap.Modal(document.getElementById('delModal'));
+  fetchContacts();
 });
 
 const fetchContacts = async () => {
@@ -147,9 +184,12 @@ axios.put(`http://localhost:8000/api/contacts/${selectedContact.value.id}`, {
 .then(response => {
     console.log(response);
     editModal.value.hide();
+    successEditNotify();
+    fetchContacts();
 })
 .catch(error => {
     console.error('Error editing contact:', error);
+    failEditNotify();
 });
 };
 
@@ -159,12 +199,15 @@ axios.delete(`http://localhost:8000/api/contacts/${deleteContact.value.id}`)
     .then(() => {
     // Handle delete success
     console.log('Contact deleted successfully');
+    fetchContacts();
+    successDeleteNotify();
     })
     .catch(error => {
-    console.error('Error deleting contact:', error);
+      console.error('Error deleting contact:', error);
+      failDeleteNotify();
     })
     .finally(() => {
-    delModal.value.hide();
+      delModal.value.hide();
     });
 };
 
