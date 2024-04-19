@@ -17,40 +17,48 @@ What can you do in here :
 
 1. Clone this Repo or download zip via download button
 
-###
+```sh
 
 https://github.com/whiskey34/address-book.git
 
-###
+```
 
 2. Open address-book-client and do NPM Install for vue js
 
-###
+```sh
 
 npm install
 
-###
+```
 
 and run the client-side
 
-###
+```sh
 
 npm run dev
 
-###
+```
 
 3. Run laravel server-side
 
-###
+```sh
 
 cd address-book
 
-###
+```
 
-###
+```sh
 
 php artisan serve
 
-###
+```
 
 # Screenshot 
+
+CRUD Operation
+
+![ss-1](./assets/ui-yellowbook-home.png)
+
+##
+
+![ss-1](./assets/yellowbook-screenrecord.mp4)

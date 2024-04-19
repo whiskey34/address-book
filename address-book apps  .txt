@@ -22,3 +22,9 @@ other update :
 2. update table w/ package/library to datatables.net / else 
 3. Total Contact with card put at Home Page
 4. import and export contact button from csv / to csv 
+
+architecture :
+- monolith (done)
+- spa (done)
+- create seperate routes for API enpoint aside from views on Laravel (done)
+- utilize Vue for frontend API calls & Laravel API routes for backend operation (done)
