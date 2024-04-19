@@ -61,4 +61,4 @@ CRUD Operation
 
 ##
 
-![ss-1](./assets/yellowbook-screenrecord.mp4)
+![ss-1](url)
