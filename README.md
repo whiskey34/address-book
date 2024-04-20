@@ -61,4 +61,4 @@ CRUD Operation
 
 ##
 
-![ss-1](https://drive.google.com/file/d/1UMrjdt81zWiUo8gc2PuHtstLvONADLdS/view?usp=sharing)
+![ss-1](./assets/yellowbook-screenrecord.gif)
