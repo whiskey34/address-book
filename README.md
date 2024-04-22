@@ -2,7 +2,7 @@
 
 Simple Address Book is a simple Restful API Laravel-Based contact list manager w/ basic feature using CRUD, Search Filter and Pagination. An API allow integration with other services. Built using Vue JS, Bootstrap Framework, Primeicons, Axios, yup, Vee-validate, Inertia Js, Vue3-toastify and Laravel-Mix.
 
-[DEMO](https://yellowbook.verccel.app)
+[DEMO](https://yellowbook.vercel.app)
 
 ## Features
 
@@ -79,7 +79,7 @@ CRUD Operation
 ![ss-1](./assets/yellowbook-screenrecord.gif)
 
 
-[DEMO](https://yellowbook.verccel.app)
+[DEMO](https://yellowbook.vercel.app)
 
 ## TO DO
 
