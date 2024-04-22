@@ -71,7 +71,7 @@ const registerForm = async () => {
             // Add other fields here
         };
         // console.log('Form Data:', formData);
-        const response = await axios.post('http://localhost:8000/api/contacts', formData);
+        const response = await axios.post('https://yellowbook.portogarage.my.id/api/contacts', formData);
 
         // console.log('Contact added successfully:', response.data);
         successNotify();
@@ -117,9 +117,9 @@ const registerForm = async () => {
                         </div>
                         <div class="mb-3">
                             <label for="phoneNum" class="form-label">Phone Number</label>
-                            <Field type="text" name="phoneNum" v-model="phoneNum" class="form-control" id="phoneNum" :class="{ 'is-invalid': errors.phoneNum }"/>
+                            <Field type="text" name="phoneNum" v-model="phoneNum" class="form-control" id="phoneNum" aria-describedby="emailHelp" :class="{ 'is-invalid': errors.phoneNum }"/>
                             <div class="invalid-feedback">{{errors.phoneNum}}</div>
-                            
+                            <div id="phoneNumHelp" class="form-text">Minimun is 10 digits and maximum is 13 digits.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email address</label>

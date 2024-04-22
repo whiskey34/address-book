@@ -150,7 +150,7 @@ onMounted(() => {
 
 const fetchContacts = async () => {
 try {
-    const response = await axios.get('http://localhost:8000/api/contacts?page=' + pagination.value.current_page);
+    const response = await axios.get('https://yellowbook.portogarage.my.id/api/contacts?page=' + pagination.value.current_page);
     if (response.data.success) {
     contacts.value = response.data.data.data.reverse();
     pagination.value.current_page = response.data.data.current_page;
@@ -174,7 +174,7 @@ delModal.value.show();
 };
 
 const doEdit = () => {
-axios.put(`http://localhost:8000/api/contacts/${selectedContact.value.id}`, {
+axios.put(`https://yellowbook.portogarage.my.id/api/contacts/${selectedContact.value.id}`, {
     name: selectedContact.value.name,
     phone: selectedContact.value.phone,
     email: selectedContact.value.email,
@@ -195,7 +195,7 @@ axios.put(`http://localhost:8000/api/contacts/${selectedContact.value.id}`, {
 
 const doDelete = () => {
 if (!deleteContact.value) return; // Ensure a contact is selected
-axios.delete(`http://localhost:8000/api/contacts/${deleteContact.value.id}`)
+axios.delete(`https://yellowbook.portogarage.my.id/api/contacts/${deleteContact.value.id}`)
     .then(() => {
     // Handle delete success
     console.log('Contact deleted successfully');
