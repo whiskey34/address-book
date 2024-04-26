@@ -19,33 +19,35 @@
           </ul>
         </div>
       </div>
-  
-      <table class="table table-hover" id="contactTable">
-        <thead class="table-success">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Email</th>
-            <th scope="col">Address</th>
-            <th scope="col">City</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <Suspense>
-          <template #default>
-            <LazyTableContent :contacts="filteredContacts" :editPopup="editPopup" :deletePopup="deletePopup" />
-          </template>
-          <template #fallback>
-            <tbody>
-              <!-- <tr>
-                <td colspan="7" class="load-text" >Loading...</td>
-              </tr> -->
-              <LoadAnimate />
-            </tbody>
-          </template>
-        </Suspense>
-      </table>
+      <div class="table-responsive">
+          <table class="table table-hover" id="contactTable">
+            <thead class="table-success">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Email</th>
+                <th scope="col">Address</th>
+                <th scope="col">City</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <Suspense>
+              <template #default>
+                <LazyTableContent :contacts="filteredContacts" :editPopup="editPopup" :deletePopup="deletePopup" />
+              </template>
+              <template #fallback>
+                <tbody>
+                  <!-- <tr>
+                    <td colspan="7" class="load-text" >Loading...</td>
+                  </tr> -->
+                  <LoadAnimate />
+                </tbody>
+              </template>
+            </Suspense>
+          </table>
+      </div>
+      
       <div>
         <nav aria-label="Page navigation example">
           <ul class="pagination">
